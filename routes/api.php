@@ -15,12 +15,9 @@ use App\Models\SavedToken;
 |
 */
 
-Route::middleware('auth:sanctum')->group(function(){
-    // Route::get('get_notification_list', [App\Http\Controllers\ApiController::class, 'get_notification_list'])->name('get_notification_list');
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
-});
+Route::post('/booking/post', [App\Http\Controllers\BookingController::class, 'bookingPost'])->name('bookingPost');
+Route::get('/booking/get/{phone}', [App\Http\Controllers\BookingController::class, 'bookingGet'])->name('bookingGet');
+Route::get('/times/get', [App\Http\Controllers\UtilsController::class, 'timesGet'])->name('timesGet');
 
 Route::post('/tokens/create', function (Request $request) {
     $user = User::where('email', $request->email)->first();
