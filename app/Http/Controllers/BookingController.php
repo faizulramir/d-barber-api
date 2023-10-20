@@ -6,6 +6,8 @@ use App\Models\Booking;
 use App\Models\SystemStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\SendNotification;
 
 class BookingController extends Controller
 {
@@ -57,12 +59,28 @@ class BookingController extends Controller
             }
         }
 
+        $bookDouble = Booking::where([['date', '=', $request->b_date], ['phone', '=', $request->phone], ['status', '=', 0]])->get();
+        if (count($bookDouble) > 0) {
+            return response()->json([
+                    'status'=> 'ERROR',
+                    'data' => null,
+                    'message'=> 'Oops! You have pending booking for today!',
+                ]
+            );
+        }
+
         $booking = new Booking();
         $booking->name = $request->name;
         $booking->phone = $request->phone;
         $booking->date = $request->b_date;
         $booking->time = $request->b_time;
         $booking->save();
+
+        try{
+            Notification::send($booking, new SendNotification());
+        }catch(\Exception $e){
+            
+        }
 
         return response()->json([
                 'status' => 'OK',
@@ -73,7 +91,12 @@ class BookingController extends Controller
     }
 
     public function bookingGet($phone) {
-        $booking = Booking::where([['phone', '=', $phone], ['status', '=', 0]])->first();
+        if ($phone == 'all') {
+            $booking = Booking::all();
+        } else {
+            $booking = Booking::where([['phone', '=', $phone], ['status', '=', 0]])->first();
+        }
+        
         if (!$booking) {
             return response()->json([
                     'status'=> 'ERROR',

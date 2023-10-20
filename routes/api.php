@@ -17,7 +17,8 @@ use App\Models\SavedToken;
 
 Route::post('/booking/post', [App\Http\Controllers\BookingController::class, 'bookingPost'])->name('bookingPost');
 Route::get('/booking/get/{phone}', [App\Http\Controllers\BookingController::class, 'bookingGet'])->name('bookingGet');
-Route::get('/times/get', [App\Http\Controllers\UtilsController::class, 'timesGet'])->name('timesGet');
+Route::get('/times/get/{date}', [App\Http\Controllers\UtilsController::class, 'timesGet'])->name('timesGet');
+Route::get('/shop/get', [App\Http\Controllers\UtilsController::class, 'shopGet'])->name('shopGet');
 
 Route::post('/tokens/create', function (Request $request) {
     $user = User::where('email', $request->email)->first();

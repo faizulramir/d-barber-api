@@ -15,7 +15,7 @@ class UtilsController extends Controller
      * @return void
      */
 
-    public function timesGet(Request $request) {
+    public function timesGet(Request $request, $date) {
         
         $times = [
             [
@@ -84,23 +84,42 @@ class UtilsController extends Controller
             ],
         ];
 
-        $bookings = Booking::all();
-        foreach ($bookings as $booking) {
-            foreach ($times as $t => $time) {
+        $bookings = Booking::where('date', $date)->get();
+        foreach ($times as $t => $time) {
+            foreach ($bookings as $booking) {
                 if ($booking->time == $time['time'].' '.strtoupper($time['type'])) {
                     $times[$t]['booked'] = true;
-                } else {
-                    $times[$t]['booked'] = false;
                 }
             }
         }
-
+        
         return response()->json([
                 'status' => 'OK',
                 'data' => $times,
                 'message'=> 'Success!',
             ]
         );
+    }
+
+    public function shopGet(Request $request) {
+        $system_status = SystemStatus::find(1);
+        if ($request->status !== null) {
+            $system_status->status = $request->status == '1' ? 0 : 1;
+            $system_status->save();
+
+            return response()->json([
+                'status'=> 'OK',
+                'data'=> $system_status->status,
+                'message'=> 'Shop '. ($system_status->status == 1 ? 'Opened!' : 'Closed!')
+            ]);
+        }
+
+       
+        return response()->json([
+            'status'=> 'OK',
+            'data'=> $system_status->status,
+            'message'=> 'Shop '. ($system_status->status == 1 ? 'Opened!' : 'Closed!')
+        ]);
     }
 }
 
